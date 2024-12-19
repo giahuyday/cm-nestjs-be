@@ -27,16 +27,15 @@ export class CourseService {
 
     createCourse = (courseData: any) => {
         const courses = this.utilService.readData();
-        const coursesLen = courses['classes'].length > 0 ? courses['classes'].length - 1 : 0;
 
         if (this.utilService.checkCourseName(courses['classes'], courseData?.name)) {
-            return 'Wrong';
+            return { status: 'Courses existed' };
         }
 
         // get id of last element +1 to ensure that next id is increase in case some courses was deleted
-        const newId = coursesLen > 1 ? courses['classes'][coursesLen].id + 1 : 1;
+        const maxId = courses['classes'].reduce((max: number, course: { id: number }) => Math.max(max, course.id), 0);
         const newCourse = {
-            id: newId,
+            id: maxId + 1,
             name: courseData?.name,
         }; //check lại 1 case id
 

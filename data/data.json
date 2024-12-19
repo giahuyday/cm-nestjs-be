@@ -2,38 +2,23 @@
   "students": [
     {
       "id": 1,
-      "name": "Nguyen Van A",
-      "classId": 1
+      "name": "Nguyen Van 11Ed11111",
+      "classId": "2"
     },
     {
       "id": 2,
-      "name": "Tran Thi B",
-      "classId": 1
-    },
-    {
-      "id": 3,
-      "name": "Le Van C",
-      "classId": 1
-    },
-    {
-      "id": 4,
-      "name": "Nguyen Van D",
-      "mail": "",
+      "name": "Nguyen Van 11Ed111121",
       "classId": "2"
     }
   ],
   "classes": [
     {
       "id": 1,
-      "name": "Computer Science 101"
+      "name": "Computer mathematical 1312"
     },
     {
       "id": 2,
-      "name": "Mathematics 102"
-    },
-    {
-      "id": 3,
-      "name": "OOP"
+      "name": "Computer mathematical 13122"
     }
   ]
 }
