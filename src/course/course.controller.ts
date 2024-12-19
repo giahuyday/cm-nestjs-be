@@ -1,7 +1,8 @@
 import { Controller, Get, Post, Body, Param, ParseIntPipe, ValidationPipe, SetMetadata } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { CourseDto } from './dto/course.dto';
+import { CourseDto, DeleteCourseDto } from './dto/course.dto';
 import { Roles } from 'src/decorators/roles.decorator';
+import { plainToInstance } from 'class-transformer';
 
 @Controller('class/api')
 export class CourseController {
@@ -37,7 +38,8 @@ export class CourseController {
 
     @Post('delete')
     @Roles('admin', 'principal')
-    deleteCourseById(@Body() body: any) {
-        return this.classServices.deleteCourse(+body.id);
+    deleteCourseById(@Body(ValidationPipe) body: DeleteCourseDto) {
+        const dto = plainToInstance(DeleteCourseDto, body);
+        return this.classServices.deleteCourse(dto.getCourseId());
     }
 }

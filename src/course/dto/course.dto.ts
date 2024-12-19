@@ -1,12 +1,21 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CourseDto {
-    @IsOptional()
     @IsString()
     @IsNotEmpty()
     private name: string;
 
-    getCourseName() {
-        return this.name;
+    getCouseName() {
+        return this.getCouseName;
+    }
+}
+
+export class DeleteCourseDto {
+    @IsInt()
+    @IsNotEmpty()
+    private id: number;
+
+    getCourseId() {
+        return this.id;
     }
 }
