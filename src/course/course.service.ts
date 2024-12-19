@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { UtilsService } from 'src/utils/utils.service';
 
-type Class = {
+type Course = {
     id: number;
     name: string;
 };
 
 @Injectable()
-export class ClassService {
+export class CourseService {
     constructor(private readonly utilService: UtilsService) {}
 
-    public class: Class[] = [
+    public class: Course[] = [
         {
             id: 1,
             name: 'Computer Science 101',
@@ -31,7 +31,7 @@ export class ClassService {
             const coursesLen = courses['classes'].length > 0 ? courses['classes'].length - 1 : 0;
 
             // get id of last element +1 to ensure that next id is increase in case some courses was deleted
-            const newId = coursesLen > 0 ? courses['classes'][coursesLen].id : 1;
+            const newId = coursesLen > 1 ? courses['classes'][coursesLen].id + 1 : 1;
             const newCourse = {
                 id: newId,
                 name: courseData?.name,
@@ -79,7 +79,7 @@ export class ClassService {
 
                 return courses['classes'][courseIdx];
             } else {
-                return { status: 'Class name is existed or cannot update' };
+                return { status: 'Course name is existed or cannot update' };
             }
         } catch (error) {
             console.log(error);
