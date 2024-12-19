@@ -1,35 +1,40 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { CourseService } from './course.service';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, ValidationPipe } from '@nestjs/common';
+import { CourseService, Course } from './course.service';
+import { CourseDto } from './dto/course.dto';
 
 @Controller('class/api')
 export class CourseController {
-    constructor(private readonly classServices: CourseService) {}
+    constructor(
+        private readonly classServices: CourseService,
+        private readonly courseDto: CourseDto,
+    ) {}
 
     @Post('create')
-    createCourseController(@Body() body: any) {
-        const newCourse = this.classServices.createCourse(body);
+    createCourseController(@Body(ValidationPipe) courseDto: CourseDto) {
+        const newCourse = this.classServices.createCourse(courseDto);
 
         return newCourse;
     }
 
     @Get('get_courses')
-    getStudentByName(): any {
+    getStudentByName(): Promise<Course[]> {
         return this.classServices.getCourses();
     }
 
     @Get('get_course/:id')
-    getStudentByIdController(@Param('id') id: string): any {
-        const studentId = parseInt(id, 10);
-
-        return this.classServices.getCourseById(studentId);
+    getStudentByIdController(@Param('id', ParseIntPipe) id: number): any {
+        return this.classServices.getCourseById(id);
     }
 
     @Post('update/:id')
-    updateCourseById(@Param() id: string, @Body() body: any) {
-        const updatedCourse = this.classServices.updateCourse(parseInt(id, 10), body);
+    updateCourseById(@Param('id', ParseIntPipe) id: number, @Body(ValidationPipe) courseDto: CourseDto) {
+        const updatedCourse = this.classServices.updateCourse(id, courseDto);
+
+        return updatedCourse;
     }
+
     @Post('delete')
-    deleteCourseById(@Body() id: string) {
-        return this.classServices.deleteCourse(parseInt(id, 10));
+    deleteCourseById(@Body() body: any) {
+        return this.classServices.deleteCourse(+body.id);
     }
 }

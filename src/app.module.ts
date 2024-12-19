@@ -7,10 +7,11 @@ import { CourseModule } from './course/course.module';
 import { UtilsService } from './utils/utils.service';
 import { UtilsModule } from './utils/utils.module';
 import { StudentModule } from './student/student.module';
+import { StudentDto } from './student/dto/student.dto';
 
 @Module({
     imports: [CourseModule, UtilsModule, StudentModule],
     controllers: [AppController, StudentController],
-    providers: [AppService, StudentService, UtilsService],
+    providers: [AppService, StudentService, UtilsService, StudentDto],
 })
 export class AppModule {}

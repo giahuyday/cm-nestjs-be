@@ -1,27 +1,31 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { StudentService } from './student.service';
+import { Controller, Get, Post, Body, Param, ValidationPipe, ParseIntPipe } from '@nestjs/common';
+import { StudentService, Student } from './student.service';
+import { StudentDto } from './dto/student.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Controller('student/api')
 export class StudentController {
-    constructor(private readonly studentServices: StudentService) {}
+    constructor(
+        private readonly studentServices: StudentService,
+        private readonly studentDto: StudentDto,
+    ) {}
 
     @Post('create')
-    createStudent(@Body() body: any) {
-        const student = this.studentServices.createStudent(body);
+    createStudent(@Body(ValidationPipe) studentDto: StudentDto): Promise<Student> {
+        const student = this.studentServices.createStudent(studentDto);
 
         return student;
     }
 
     @Get('get_student/:id')
-    getStudentByIdController(@Param('id') id: string): any {
-        const studentId = parseInt(id, 10);
-        console.log(id, typeof id);
-        return this.studentServices.getStudentById(studentId);
+    getStudentByIdController(@Param('id', ParseIntPipe) id: number): any {
+        return this.studentServices.getStudentById(id);
     }
 
     @Get('get_by_name')
-    getStudentByName(@Body() body: { name: string }): any {
-        return this.studentServices.getStudentByName(body?.name);
+    getStudentByName(@Body(ValidationPipe) student: { name: string }): any {
+        const dto = plainToInstance(StudentDto, student);
+        return this.studentServices.getStudentByName(dto?.getCourseName());
     }
 
     @Get('get_by_classname')
@@ -35,11 +39,12 @@ export class StudentController {
     }
 
     @Post('update/:id')
-    updateStudent(@Param('id') id: string, @Body() body: any): any {
-        const studentId = parseInt(id, 10);
-        return this.studentServices.updateStudent(studentId, body);
+    updateStudent(@Param('id', ParseIntPipe) id: number, @Body(ValidationPipe) body: StudentDto): any {
+        return this.studentServices.updateStudent(id, body);
     }
 
     @Post('delete')
-    deleteStudent(): any {}
+    deleteStudent(@Body() body: any): any {
+        return this.studentServices.deleteStudent(body?.id);
+    }
 }

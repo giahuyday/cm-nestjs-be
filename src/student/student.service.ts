@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UtilsService } from 'src/utils/utils.service';
 
-type Student = {
+export type Student = {
     id: number;
     name: string;
     classId: number;
@@ -111,5 +111,19 @@ export class StudentService {
         } catch (error) {
             console.log(error);
         }
+    };
+
+    deleteStudent = (studentId: number) => {
+        const data = this.utilService.readData();
+        const studentIdx = data['students'].findIndex((student) => student.id === Number(studentId));
+
+        if (studentIdx !== -1) {
+            data['students'].splice(studentIdx, 1);
+            this.utilService.writeData(data);
+
+            return { status: 'Student is deleted' };
+        }
+
+        return { status: 'Student is deleted' };
     };
 }
