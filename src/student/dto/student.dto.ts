@@ -20,7 +20,7 @@ export class CreateStudentDto {
     @IsString()
     private name: string;
 
-    @IsString()
+    @IsInt()
     @IsNotEmpty()
     private classId: number;
 
