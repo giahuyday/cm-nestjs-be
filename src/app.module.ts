@@ -7,7 +7,7 @@ import { CourseModule } from './course/course.module';
 import { UtilsModule } from './utils/utils.module';
 import { StudentModule } from './student/student.module';
 import { APP_GUARD, Reflector } from '@nestjs/core';
-import { StudentGuard } from './guards/student.guards';
+import { StudentGuard } from './common/guards/student.guards';
 
 @Module({
     imports: [CourseModule, UtilsModule, StudentModule],
