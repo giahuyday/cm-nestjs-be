@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, ParseIntPipe, ValidationPipe, SetMetadata } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CourseDto, DeleteCourseDto } from './dto/course.dto';
-import { Roles } from 'src/decorators/roles.decorator';
+import { Roles } from 'src/common/decorators/roles.decorator';
 import { plainToInstance } from 'class-transformer';
 
 @Controller('class/api')

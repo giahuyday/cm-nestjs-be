@@ -1,5 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { ErrorResponse } from '../errors/ErrorResponse';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -26,13 +27,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         const devMessage =
             typeof errorDetail === 'string' ? errorDetail : (errorDetail as any).message || 'Unexpected error occured';
+        const responseData = new ErrorResponse(request.url, errorCode, devMessage, request.body);
 
-        response.status(status).json({
-            path: request.url,
-            errorCode: errorCode,
-            devMessage: devMessage,
-            status: status,
-            data: request.body,
-        });
+        response.status(status).json(responseData);
     }
 }

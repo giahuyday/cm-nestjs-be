@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, ValidationPipe, ParseIntPipe } from
 import { StudentService, Student } from './student.service';
 import { StudentDto, CreateStudentDto, StudentByClassDto, UpdateStudentDto, DeleteStudentDto } from './dto/student.dto';
 import { plainToInstance } from 'class-transformer';
-import { Roles } from 'src/decorators/roles.decorator';
+import { Roles } from 'src/common/decorators/roles.decorator';
 import bodyParser from 'body-parser';
 
 @Controller('student/api')
