@@ -23,14 +23,13 @@ export class StudentController {
         return this.studentServices.getStudentById(id);
     }
 
-    @Get('get_by_name')
+    @Post('get_by_name')
     @Roles('admin', 'principal', 'teacher')
-    getStudentByName(@Body(ValidationPipe) student: StudentDto): any {
-        const dto = plainToInstance(StudentDto, student);
-        return this.studentServices.getStudentByName(dto?.getStudentName());
+    getStudentByName(@Body(ValidationPipe) student: StudentByClassDto): any {
+        return this.studentServices.getStudentByName(student?.name);
     }
 
-    @Get('get_by_classname')
+    @Post('get_by_classname')
     @Roles('admin', 'principal', 'teacher')
     getStudentByClassName(@Body(ValidationPipe) body: StudentByClassDto): Promise<StudentDto> {
         return this.studentServices.getStudentByClassName(body?.courseName);

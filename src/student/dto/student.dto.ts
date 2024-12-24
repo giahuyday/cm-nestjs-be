@@ -34,9 +34,13 @@ export class CreateStudentDto {
 }
 
 export class StudentByClassDto {
+    @IsOptional()
     @IsString()
-    @IsNotEmpty()
     courseName: string;
+
+    @IsOptional()
+    @IsString()
+    name: string;
 }
 
 export class UpdateStudentDto {

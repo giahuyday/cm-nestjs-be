@@ -57,13 +57,13 @@ export class StudentService {
     };
 
     getStudentById = (studentId: number) => {
-        const students = this.student;
+        const students = this.utilService.readData()['students'];
 
         return students.find((student) => student.id == studentId);
     };
 
     getStudentByName = (studentName: string) => {
-        const students = this.student;
+        const students = this.utilService.readData()['students'];
         const student = students.filter((student) => student?.name.toLowerCase().includes(studentName.toLowerCase()));
 
         return student;
