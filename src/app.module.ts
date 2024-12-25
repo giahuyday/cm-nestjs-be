@@ -8,9 +8,11 @@ import { UtilsModule } from './utils/utils.module';
 import { StudentModule } from './student/student.module';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { StudentGuard } from './common/guards/student.guards';
+import { DBConfigModule } from './config/db.config';
+import { EnvConfigModule } from './config/env.config';
 
 @Module({
-    imports: [CourseModule, UtilsModule, StudentModule],
+    imports: [DBConfigModule, EnvConfigModule, CourseModule, UtilsModule, StudentModule],
     controllers: [AppController, StudentController],
     providers: [
         AppService,
