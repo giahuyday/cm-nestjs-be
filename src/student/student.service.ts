@@ -1,118 +1,92 @@
-import { Injectable } from '@nestjs/common';
-import { UtilsService } from 'src/utils/utils.service';
-
-export type Student = {
-    id: number;
-    name: string;
-    classId: number;
-};
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { StudentEntity } from 'src/entities/student.entity';
+import { Repository } from 'typeorm';
+import { CreateStudentDto, DeleteStudentDto, StudentDto } from './dto/student.dto';
+import { CourseEntity } from 'src/entities/course.entity';
 
 @Injectable()
 export class StudentService {
-    constructor(private readonly utilService: UtilsService) {}
+    constructor(
+        @InjectRepository(StudentEntity)
+        private readonly studentRepository: Repository<StudentEntity>,
 
-    public student: Student[] = [
-        {
-            id: 1,
-            name: 'Nguyen Van A',
-            classId: 1,
-        },
-        {
-            id: 2,
-            name: 'Tran Thi B',
-            classId: 1,
-        },
-        {
-            id: 3,
-            name: 'Le Van C',
-            classId: 1,
-        },
-    ];
+        @InjectRepository(CourseEntity)
+        private readonly courseRepository: Repository<CourseEntity>,
+    ) {}
 
-    createStudent = (studentData: any) => {
-        const data = this.utilService.readData();
-        const maxId = data['students'].reduce((max: number, student: { id: number }) => Math.max(max, student.id), 0);
+    async createStudent(studentData: CreateStudentDto): Promise<any> {
+        const student = await this.studentRepository.findOne({
+            where: {
+                name: studentData.name,
+            },
+        });
 
-        if (this.utilService.checkNewStudentClass(studentData, data['students'], data['classes'])) {
-            const newStudent = {
-                id: maxId + 1,
+        const studentClass = await this.courseRepository.findOne({
+            where: {
+                id: studentData.classId,
+            },
+        });
+
+        if (!student && studentClass) {
+            const newStudent = this.studentRepository.create({
                 name: studentData?.name,
-                classId: studentData?.classId,
-            };
+                classId: studentClass,
+            });
 
-            data['students'].push(newStudent);
-            this.utilService.writeData(data);
-            const idx = data['students'].length - 1;
-
-            return data['students'][idx];
-        } else {
-            return { message: 'Student name existed or class not found' };
+            return await this.studentRepository.save(newStudent);
         }
-    };
 
-    getStudents = () => {
-        const students = this.utilService.readData()['students'];
+        throw new ConflictException();
+    }
 
-        return students;
-    };
+    async getStudents(): Promise<StudentDto[]> {
+        return await this.studentRepository.find();
+    }
 
-    getStudentById = (studentId: number) => {
-        const students = this.utilService.readData()['students'];
-
-        return students.find((student) => student.id == studentId);
-    };
-
-    getStudentByName = (studentName: string) => {
-        const students = this.utilService.readData()['students'];
-        const student = students.filter((student) => student?.name.toLowerCase().includes(studentName.toLowerCase()));
+    async getStudentById(studentData: number): Promise<StudentDto> {
+        const student = await this.studentRepository.findOne({ where: { id: studentData } });
+        if (!student) throw new NotFoundException();
 
         return student;
-    };
+    }
 
-    getStudentByClassName = (courseName: string) => {
-        const data = this.utilService.readData();
-        const students = data['students'];
-        const courses = data['classes'];
+    async getStudentByName(studentName: string): Promise<StudentDto[]> {
+        const student = await this.studentRepository
+            .createQueryBuilder('student')
+            .where('student.name ilike :name', { name: `%${studentName}%` })
+            .getMany();
 
-        const course = courses.find(
-            (course: { name: string }) => course?.name.toLowerCase() == courseName.toLowerCase(),
-        );
+        if (!student) throw new NotFoundException();
 
-        if (course) {
-            // Get student who attend to a class match with class name
-            const student = students.filter((student: { classId: any }) => student?.classId == course?.id);
-            student.map((student: { className: any }) => (student.className = course?.name)); //map className field before response
+        return student;
+    }
 
-            return student;
-        } else {
-            return { status: 'Not found student or class' };
-        }
-    };
+    async getStudentByClassName(courseName: string): Promise<StudentDto[]> {
+        const studentClass = await this.courseRepository.findOne({ where: { name: courseName } });
+        if (!studentClass) throw new NotFoundException();
 
-    updateStudent = (id: number, studentData: any) => {
-        const students = this.utilService.readData();
-        const studentIdx = students['students'].findIndex((student: { id: number }) => student.id == Number(id));
+        return await this.studentRepository.find({ where: { classId: studentClass } });
+    }
 
-        if (studentIdx !== -1 && !this.utilService.checkStudentName(students['students'], studentData?.name)) {
-            students['students'][studentIdx] = { ...students['students'][studentIdx], ...studentData };
-            this.utilService.writeData(students);
+    async updateStudent(id: number, studentData: any): Promise<StudentDto> {
+        const student = await this.studentRepository.findOne({ where: { id: id } });
 
-            return students['students'][studentIdx];
-        }
-        return { status: 'Student Name is existed or cannot update' };
-    };
+        if (!student) throw new NotFoundException();
 
-    deleteStudent = (studentId: number) => {
-        const data = this.utilService.readData();
-        const studentIdx = data['students'].findIndex((student) => student.id === Number(studentId));
+        const nameCheck = await this.studentRepository.findOne({ where: { name: studentData.name } });
+        if (nameCheck) throw new ConflictException();
 
-        if (studentIdx !== -1) {
-            data['students'].splice(studentIdx, 1);
-            this.utilService.writeData(data);
+        Object.assign(student, studentData);
+        return await this.studentRepository.save(student);
+    }
 
-            return { status: 'Student is deleted' };
-        }
+    async deleteStudent(studentData: DeleteStudentDto): Promise<boolean> {
+        const student = await this.studentRepository.findOne({ where: { id: studentData.id } });
 
-        return { status: 'Student is deleted' };
-    };
+        if (!student) return true;
+        await this.studentRepository.remove(student);
+
+        return true;
+    }
 }

@@ -1,36 +1,28 @@
 import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { CourseDto } from 'src/course/dto/course.dto';
+import { CourseEntity } from 'src/entities/course.entity';
 
 export class StudentDto {
-    @IsString()
-    private name: string;
-
     @IsInt()
-    private classId: number;
+    @IsNotEmpty()
+    id: number;
 
-    getStudentName() {
-        return this.name;
-    }
+    @IsString()
+    @IsNotEmpty()
+    name: string;
 
-    getClassId() {
-        return this.classId;
-    }
+    @IsOptional()
+    classId: CourseEntity;
 }
 
 export class CreateStudentDto {
     @IsString()
-    private name: string;
+    @IsNotEmpty()
+    name: string;
 
     @IsInt()
     @IsNotEmpty()
-    private classId: number;
-
-    getStudentName() {
-        return this.name;
-    }
-
-    getClassId() {
-        return this.classId;
-    }
+    classId: number;
 }
 
 export class StudentByClassDto {
@@ -41,32 +33,23 @@ export class StudentByClassDto {
     @IsOptional()
     @IsString()
     name: string;
+
+    @IsOptional()
+    class: CourseDto;
 }
 
 export class UpdateStudentDto {
     @IsOptional()
     @IsString()
-    private name: string;
+    name: string;
 
     @IsOptional()
     @IsInt()
-    private classId: number;
-
-    getStudentName() {
-        return this.name;
-    }
-
-    getClassId() {
-        return this.classId;
-    }
+    classId: number;
 }
 
 export class DeleteStudentDto {
     @IsInt()
     @IsNotEmpty()
-    private id: number;
-
-    getStudentId() {
-        return this.id;
-    }
+    id: number;
 }
