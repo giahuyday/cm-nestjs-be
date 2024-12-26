@@ -1,11 +1,14 @@
 import { Global, Module } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CourseController } from './course.controller';
-import { CourseDto } from './dto/course.dto';
+import { CourseEntity } from 'src/entities/course.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { StudentEntity } from 'src/entities/student.entity';
 
 @Global()
 @Module({
-    providers: [CourseService, CourseDto],
+    imports: [TypeOrmModule.forFeature([CourseEntity, StudentEntity])],
+    providers: [CourseService],
     controllers: [CourseController],
 })
 export class CourseModule {}
