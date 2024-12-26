@@ -1,98 +1,55 @@
-import { Injectable } from '@nestjs/common';
-import { UtilsService } from 'src/utils/utils.service';
-
-type Course = {
-    id: number;
-    name: string;
-};
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CourseEntity } from 'src/entities/course.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CourseService {
-    constructor(private readonly utilService: UtilsService) {}
+    constructor(
+        @InjectRepository(CourseEntity)
+        private readonly courseRepository: Repository<CourseEntity>,
+    ) {}
 
-    public class: Course[] = [
-        {
-            id: 1,
-            name: 'Computer Science 101',
-        },
-        {
-            id: 2,
-            name: 'Mathematics 102',
-        },
-        {
-            id: 3,
-            name: 'OOP',
-        },
-    ];
+    async createCourse(courseData: string) {
+        const course = this.courseRepository.create({ name: courseData });
 
-    createCourse = (courseData: any) => {
-        const courses = this.utilService.readData();
+        return await this.courseRepository.save(course);
+    }
 
-        if (this.utilService.checkCourseName(courses['classes'], courseData?.name)) {
-            return { status: 'Courses existed' };
-        }
-
-        // get id of last element +1 to ensure that next id is increase in case some courses was deleted
-        const maxId = courses['classes'].reduce((max: number, course: { id: number }) => Math.max(max, course.id), 0);
-        const newCourse = {
-            id: maxId + 1,
-            name: courseData?.name,
-        }; //check lại 1 case id
-
-        courses['classes'].push(newCourse);
-        this.utilService.writeData(courses); // Lưu dữ liệu vào file JSON
-        const idx = courses['classes'].length - 1;
-
-        return courses['classes'][idx];
-    };
-
-    getCourses = () => {
-        const courses = this.utilService.readData()['classes'];
-
-        return courses;
-    };
+    async getCourses() {
+        return this.courseRepository.find();
+    }
 
     getCourseById = (courseId: number) => {
-        const courses = this.utilService.readData()['classes'];
-        const course = courses.filter((course) => course.id == courseId);
-
-        if (course.length > 0) {
-            return course;
-        } else {
-            return { status: 'NOT FOUND' };
-        }
+        return this.courseRepository.findOne({ where: { id: courseId } });
     };
 
-    updateCourse = (id: number, courseData: any) => {
-        const courses = this.utilService.readData();
-        const courseIdx = courses['classes'].findIndex((course) => course.id === Number(id));
-
-        if (courseIdx !== -1 && !this.utilService.checkCourseName(courses['classes'], courseData?.name)) {
-            courses['classes'][courseIdx] = { ...courses['classes'][courseIdx], ...courseData };
-            this.utilService.writeData(courses);
-
-            return courses['classes'][courseIdx];
-        } else {
-            return { status: 'Course name is existed or cannot update' };
+    async updateCourse(id: number, courseData: any) {
+        const course = await this.courseRepository.findOne({ where: { id } });
+        if (!course) {
+            throw new NotFoundException();
         }
-    };
 
-    deleteCourse = (courseId: number) => {
-        const courses = this.utilService.readData();
-        const courseIdx = courses['classes'].findIndex((course: { id: number }) => course.id === Number(courseId));
-        const checkEnrolledStudent = this.utilService.checkEnrolledStudents(courses['students'], Number(courseId));
+        if (courseData.name) {
+            const existingCourse = await this.courseRepository.findOne({
+                where: { name: courseData.name },
+            });
 
-        if (courseIdx !== -1) {
-            if (!checkEnrolledStudent) {
-                courses['classes'].splice(courseIdx, 1);
-                this.utilService.writeData(courses);
-
-                return { message: 'Course is deleted' };
-            } else {
-                return { message: 'Exists student in course' };
+            if (existingCourse && existingCourse.id !== id) {
+                throw new ConflictException();
             }
         }
 
-        return { message: 'Courses is deleted' };
-    };
+        Object.assign(course, courseData);
+        return await this.courseRepository.save(course);
+    }
+
+    async deleteCourse(courseId: number) {
+        const course = await this.courseRepository.findOne({ where: { id: courseId } });
+        if (!course) {
+            return true;
+        }
+        await this.courseRepository.remove(course);
+        return true;
+    }
 }

@@ -11,20 +11,21 @@ export class CourseController {
     @Post('create')
     @Roles('admin', 'principal')
     createCourseController(@Body(ValidationPipe) courseDto: CourseDto) {
-        const newCourse = this.classServices.createCourse(courseDto);
+        const dto = plainToInstance(CourseDto, courseDto);
+        const newCourse = this.classServices.createCourse(dto.getName());
 
         return newCourse;
     }
 
     @Get('get_courses')
     @Roles('admin', 'principal')
-    getCourses(): Promise<CourseDto> {
+    getCourses(): any {
         return this.classServices.getCourses();
     }
 
     @Get('get_course/:id')
     @Roles('admin', 'principal')
-    getCourseByIdController(@Param('id', ParseIntPipe) id: number): Promise<CourseDto> {
+    getCourseByIdController(@Param('id', ParseIntPipe) id: number): any {
         return this.classServices.getCourseById(id);
     }
 

@@ -5,8 +5,14 @@ export class CourseDto {
     @IsNotEmpty()
     private name: string;
 
-    getCouseName() {
-        return this.getCouseName;
+    // Getter để lấy giá trị của name
+    getName(): string {
+        return this.name;
+    }
+
+    // Setter (nếu cần)
+    setName(name: string): void {
+        this.name = name;
     }
 }
 
