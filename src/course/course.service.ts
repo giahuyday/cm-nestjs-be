@@ -16,9 +16,12 @@ export class CourseService {
     ) {}
 
     async createCourse(courseData: CreateCourseDto): Promise<CourseDto> {
-        const course = this.courseRepository.create({ name: courseData.name });
+        const course = await this.courseRepository.findOne({ where: { name: courseData?.name } });
 
-        return await this.courseRepository.save(course);
+        if (course) throw new ConflictException();
+        const newCourse = this.courseRepository.create(courseData);
+
+        return await this.courseRepository.save(newCourse);
     }
 
     async getCourses(): Promise<CourseDto[]> {
@@ -26,11 +29,15 @@ export class CourseService {
     }
 
     async getCourseById(courseData: number): Promise<CourseDto> {
-        return await this.courseRepository.findOne({ where: { id: courseData } });
+        const course = await this.courseRepository.findOne({ where: { id: courseData } });
+
+        if (course) return course;
+        throw new NotFoundException();
     }
 
-    async updateCourse(id: number, courseData: any) {
-        const course = await this.courseRepository.findOne({ where: { id } });
+    async updateCourse(id: number, courseData: CreateCourseDto): Promise<CourseDto> {
+        const course = await this.courseRepository.findOne({ where: { id: id } });
+
         if (!course) {
             throw new NotFoundException();
         }

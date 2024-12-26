@@ -1,37 +1,5 @@
 # Class managements APIs with NestJS
 
-```
-└── 📁cm-nestjs-be
-    └── 📁data
-        └── data.json
-    └── 📁src
-            └── 📁common
-                └── 📁decorators
-                └── 📁errors
-                └── 📁filter
-                └── 📁guards
-            └── 📁course
-                └── 📁dto
-            └── 📁student
-                └── 📁dto
-            └── 📁utils
-            └── app.controller.spec.ts
-            └── app.controller.ts
-            └── app.module.ts
-            └── app.service.ts
-            └── main.ts
-    └── 📁test
-    └── .eslintrc.js
-    └── .gitignore
-    └── .prettierrc
-    └── nest-cli.json
-    └── package-lock.json
-    └── package.json
-    └── README.md
-    └── tsconfig.build.json
-    └── tsconfig.json
-```
-
 ## Features
 
 The migration includes:
