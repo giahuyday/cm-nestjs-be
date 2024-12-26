@@ -11,6 +11,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             [HttpStatus.FORBIDDEN]: 'FORBIDDEN',
             [HttpStatus.NOT_FOUND]: 'NOT_FOUND',
             [HttpStatus.INTERNAL_SERVER_ERROR]: 'INTERNAL_SERVER_ERROR',
+            [HttpStatus.CONFLICT]: 'CONFLICT_DATA',
         };
 
         return errorCodes[status] || 'UNKNOWN_ERROR';
