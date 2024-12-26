@@ -1,8 +1,7 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, ValidationPipe, SetMetadata } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, ValidationPipe } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { CourseDto, DeleteCourseDto } from './dto/course.dto';
+import { CourseDto, CreateCourseDto, DeleteCourseDto } from './dto/course.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { plainToInstance } from 'class-transformer';
 
 @Controller('class/api')
 export class CourseController {
@@ -10,9 +9,8 @@ export class CourseController {
 
     @Post('create')
     @Roles('admin', 'principal')
-    createCourseController(@Body(ValidationPipe) courseDto: CourseDto) {
-        const dto = plainToInstance(CourseDto, courseDto);
-        const newCourse = this.classServices.createCourse(dto.getName());
+    async createCourseController(@Body(ValidationPipe) courseDto: CreateCourseDto): Promise<CourseDto> {
+        const newCourse = await this.classServices.createCourse(courseDto);
 
         return newCourse;
     }
@@ -39,8 +37,7 @@ export class CourseController {
 
     @Post('delete')
     @Roles('admin', 'principal')
-    deleteCourseById(@Body(ValidationPipe) body: DeleteCourseDto) {
-        const dto = plainToInstance(DeleteCourseDto, body);
-        return this.classServices.deleteCourse(dto.getCourseId());
+    deleteCourseById(@Body(ValidationPipe) course: DeleteCourseDto): Promise<boolean> {
+        return this.classServices.deleteCourse(course);
     }
 }

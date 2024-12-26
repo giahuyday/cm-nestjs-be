@@ -13,8 +13,8 @@ export default new DataSource({
     username: configService.getOrThrow('DB_USERNAME'),
     password: configService.getOrThrow('DB_PASSWORD'),
     database: configService.getOrThrow('DB_DATABASE'),
-    entities: ['./src/entities/*.entity{.ts,.js}'], // Đường dẫn tuyệt đối đến entities
-    migrations: ['./src/migrations/*{.ts,.js}'], // Đường dẫn tuyệt đối đến migrations
+    entities: ['./src/entities/*.entity{.ts,.js}'],
+    migrations: ['./src/migrations/*{.ts,.js}'],
     synchronize: false,
     migrationsTableName: 'migrations',
 });

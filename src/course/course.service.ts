@@ -1,28 +1,33 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CourseEntity } from 'src/entities/course.entity';
 import { Repository } from 'typeorm';
+import { CourseDto, CreateCourseDto, DeleteCourseDto } from './dto/course.dto';
+import { StudentEntity } from 'src/entities/student.entity';
 
 @Injectable()
 export class CourseService {
     constructor(
         @InjectRepository(CourseEntity)
         private readonly courseRepository: Repository<CourseEntity>,
+
+        @InjectRepository(StudentEntity)
+        private readonly studentRepository: Repository<StudentEntity>,
     ) {}
 
-    async createCourse(courseData: string) {
-        const course = this.courseRepository.create({ name: courseData });
+    async createCourse(courseData: CreateCourseDto): Promise<CourseDto> {
+        const course = this.courseRepository.create({ name: courseData.name });
 
         return await this.courseRepository.save(course);
     }
 
-    async getCourses() {
+    async getCourses(): Promise<CourseDto[]> {
         return this.courseRepository.find();
     }
 
-    getCourseById = (courseId: number) => {
-        return this.courseRepository.findOne({ where: { id: courseId } });
-    };
+    async getCourseById(courseData: number): Promise<CourseDto> {
+        return await this.courseRepository.findOne({ where: { id: courseData } });
+    }
 
     async updateCourse(id: number, courseData: any) {
         const course = await this.courseRepository.findOne({ where: { id } });
@@ -44,11 +49,22 @@ export class CourseService {
         return await this.courseRepository.save(course);
     }
 
-    async deleteCourse(courseId: number) {
-        const course = await this.courseRepository.findOne({ where: { id: courseId } });
+    async deleteCourse(courseData: DeleteCourseDto): Promise<boolean> {
+        const course = await this.courseRepository.findOne({ where: { id: courseData.id } });
         if (!course) {
             return true;
         }
+
+        const studentExist = await this.studentRepository.findOne({
+            where: {
+                classId: courseData,
+            },
+        });
+
+        if (studentExist) {
+            throw new BadRequestException();
+        }
+
         await this.courseRepository.remove(course);
         return true;
     }
