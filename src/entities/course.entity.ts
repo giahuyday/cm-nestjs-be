@@ -9,6 +9,6 @@ export class CourseEntity {
     @Column({ length: 255, unique: true })
     name: string;
 
-    @OneToMany(() => StudentEntity, (student) => student.classId)
+    @OneToMany(() => StudentEntity, (student) => student.classId, { cascade: true })
     students: StudentEntity[];
 }

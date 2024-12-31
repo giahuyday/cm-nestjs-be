@@ -1,13 +1,15 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudentEntity } from 'src/entities/student.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateStudentDto, DeleteStudentDto, StudentDto } from './dto/student.dto';
 import { CourseEntity } from 'src/entities/course.entity';
 
 @Injectable()
 export class StudentService {
     constructor(
+        private readonly dataSource: DataSource,
+
         @InjectRepository(StudentEntity)
         private readonly studentRepository: Repository<StudentEntity>,
 
@@ -41,11 +43,14 @@ export class StudentService {
     }
 
     async getStudents(): Promise<StudentDto[]> {
-        return await this.studentRepository.find();
+        return await this.studentRepository.find({ relations: { classId: true } });
     }
 
     async getStudentById(studentData: number): Promise<StudentDto> {
-        const student = await this.studentRepository.findOne({ where: { id: studentData } });
+        const student = await this.studentRepository.findOne({
+            where: { id: studentData },
+            relations: { classId: true },
+        });
         if (!student) throw new NotFoundException();
 
         return student;
@@ -63,10 +68,15 @@ export class StudentService {
     }
 
     async getStudentByClassName(courseName: string): Promise<StudentDto[]> {
-        const studentClass = await this.courseRepository.findOne({ where: { name: courseName } });
-        if (!studentClass) throw new NotFoundException();
+        // #TODO: use left join to get All students by classname with 1 query
+        const studenByClass = await this.studentRepository
+            .createQueryBuilder('student')
+            .leftJoinAndSelect('student.classId', 'class')
+            .where('class.name = :courseName', { courseName: courseName })
+            .getMany();
 
-        return await this.studentRepository.find({ where: { classId: studentClass } });
+        if (studenByClass) return studenByClass;
+        throw new NotFoundException();
     }
 
     async updateStudent(id: number, studentData: any): Promise<StudentDto> {

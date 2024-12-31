@@ -5,7 +5,7 @@ import { config } from 'dotenv';
 config();
 
 const configService = new ConfigService();
-
+// Config validation
 export default new DataSource({
     type: 'postgres',
     host: configService.getOrThrow('DB_HOST'),
@@ -15,6 +15,5 @@ export default new DataSource({
     database: configService.getOrThrow('DB_DATABASE'),
     entities: ['./src/entities/*.entity{.ts,.js}'],
     migrations: ['./src/migrations/*{.ts,.js}'],
-    synchronize: false,
     migrationsTableName: 'migrations',
 });
