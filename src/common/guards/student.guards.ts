@@ -1,16 +1,20 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { Request } from 'express';
-
+import { GraphQLError } from 'graphql';
 @Injectable()
 export class StudentGuard implements CanActivate {
     constructor(private readonly reflector: Reflector) {}
     private roles = ['admin', 'principal', 'teacher'];
+
     canActivate(context: ExecutionContext) {
+        const ctx = GqlExecutionContext.create(context);
+        const { req } = ctx.getContext();
         const roles = this.reflector.get<string[]>('roles', context.getHandler());
 
-        const request = context.switchToHttp().getRequest<Request>();
-        const authHeader = request.headers['authorization'];
+        const authHeader = req.headers['authorization'];
+
         if (!authHeader) {
             throw new UnauthorizedException('Missing Authorization header');
         }
@@ -22,7 +26,7 @@ export class StudentGuard implements CanActivate {
         }
 
         if (!roles.includes(userRole)) {
-            throw new ForbiddenException('You do not have access to this resource');
+            throw new GraphQLError('You do not have access to this resource');
         }
 
         return true;
