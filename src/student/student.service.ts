@@ -1,15 +1,13 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudentEntity } from 'src/entities/student.entity';
-import { DataSource, Repository } from 'typeorm';
-import { CreateStudentDto, DeleteStudentDto, StudentDto } from './dto/student.dto';
+import { Repository } from 'typeorm';
+import { CreateStudentDto, DeleteStudentDto, UpdateStudentDto } from './dto/student.dto';
 import { CourseEntity } from 'src/entities/course.entity';
 
 @Injectable()
 export class StudentService {
     constructor(
-        private readonly dataSource: DataSource,
-
         @InjectRepository(StudentEntity)
         private readonly studentRepository: Repository<StudentEntity>,
 
@@ -17,7 +15,7 @@ export class StudentService {
         private readonly courseRepository: Repository<CourseEntity>,
     ) {}
 
-    async createStudent(studentData: CreateStudentDto): Promise<any> {
+    async createStudent(studentData: CreateStudentDto): Promise<StudentEntity> {
         const student = await this.studentRepository.findOne({
             where: {
                 name: studentData.name,
@@ -42,23 +40,24 @@ export class StudentService {
         throw new ConflictException();
     }
 
-    async getStudents(): Promise<StudentDto[]> {
+    async getStudents(): Promise<StudentEntity[]> {
         return await this.studentRepository.find({ relations: { classId: true } });
     }
 
-    async getStudentById(studentData: number): Promise<StudentDto> {
+    async getStudentById(studentData: number): Promise<StudentEntity> {
         const student = await this.studentRepository.findOne({
             where: { id: studentData },
             relations: { classId: true },
         });
-        if (!student) throw new NotFoundException();
+        if (!student) throw new NotFoundException("Student not found");
 
         return student;
     }
 
-    async getStudentByName(studentName: string): Promise<StudentDto[]> {
+    async getStudentByName(studentName: string): Promise<StudentEntity[]> {
         const student = await this.studentRepository
             .createQueryBuilder('student')
+            .leftJoinAndSelect('student.classId', 'class')
             .where('student.name ilike :name', { name: `%${studentName}%` })
             .getMany();
 
@@ -67,7 +66,7 @@ export class StudentService {
         return student;
     }
 
-    async getStudentByClassName(courseName: string): Promise<StudentDto[]> {
+    async getStudentByClassName(courseName: string): Promise<StudentEntity[]> {
         // #TODO: use left join to get All students by classname with 1 query
         const studenByClass = await this.studentRepository
             .createQueryBuilder('student')
@@ -79,16 +78,30 @@ export class StudentService {
         throw new NotFoundException();
     }
 
-    async updateStudent(id: number, studentData: any): Promise<StudentDto> {
-        const student = await this.studentRepository.findOne({ where: { id: id } });
+    async updateStudent(id: number, studentData: UpdateStudentDto): Promise<StudentEntity> {
+        const student = await this.studentRepository.findOne({ where: { id: id }, relations: { classId: true } });
 
         if (!student) throw new NotFoundException();
 
-        const nameCheck = await this.studentRepository.findOne({ where: { name: studentData.name } });
-        if (nameCheck) throw new ConflictException();
+        if (studentData?.name) {
+            const nameCheck = await this.studentRepository.findOne({ where: { name: studentData?.name } });
+            if (nameCheck) throw new ConflictException();
+            student.name = studentData.name;
+        }
 
-        Object.assign(student, studentData);
-        return await this.studentRepository.save(student);
+        const studenByClass = await this.studentRepository
+            .createQueryBuilder('student')
+            .leftJoinAndSelect('student.classId', 'class')
+            .where('class.id = :classId', { classId: studentData?.classId })
+            .getOne();
+
+        if (studenByClass && student.classId != studenByClass?.classId) {
+            student.classId = studenByClass.classId;
+        }
+
+        await this.studentRepository.save(student);
+
+        return await this.studentRepository.findOne({ where: { id: id }, relations: { classId: true } });
     }
 
     async deleteStudent(studentData: DeleteStudentDto): Promise<boolean> {

@@ -1,7 +1,9 @@
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsNotEmpty, IsString, MaxLength, Min } from 'class-validator';
 
-// Define length and constraints for each column data
+@InputType()
 export class CourseDto {
+    @Field()
     @IsInt()
     @Min(1)
     @IsNotEmpty()
@@ -13,7 +15,9 @@ export class CourseDto {
     name: string;
 }
 
+@InputType()
 export class CreateCourseDto {
+    @Field()
     @IsString()
     @IsNotEmpty()
     @MaxLength(255)
@@ -21,6 +25,7 @@ export class CreateCourseDto {
 }
 
 export class DeleteCourseDto {
+    @Field()
     @IsInt()
     @Min(1)
     @IsNotEmpty()
