@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { InjectRepository } from '@nestjs/typeorm';
 import { CourseEntity } from 'src/entities/course.entity';
 import { Repository } from 'typeorm';
-import { CourseDto, CreateCourseDto, DeleteCourseDto } from './dto/course.dto';
+import { CreateCourseDto, DeleteCourseDto } from './dto/course.dto';
 import { StudentEntity } from 'src/entities/student.entity';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class CourseService {
         private readonly studentRepository: Repository<StudentEntity>,
     ) {}
 
-    async createCourse(courseData: CreateCourseDto): Promise<CourseDto> {
+    async createCourse(courseData: CreateCourseDto): Promise<CourseEntity> {
         const course = await this.courseRepository.findOne({ where: { name: courseData?.name } });
 
         if (course) throw new ConflictException();
@@ -24,18 +24,18 @@ export class CourseService {
         return await this.courseRepository.save(newCourse);
     }
 
-    async getCourses(): Promise<CourseDto[]> {
+    async getCourses(): Promise<CourseEntity[]> {
         return this.courseRepository.find();
     }
 
-    async getCourseById(courseData: number): Promise<CourseDto> {
+    async getCourseById(courseData: number): Promise<CourseEntity> {
         const course = await this.courseRepository.findOne({ where: { id: courseData } });
 
         if (course) return course;
         throw new NotFoundException();
     }
 
-    async updateCourse(id: number, courseData: CreateCourseDto): Promise<CourseDto> {
+    async updateCourse(id: number, courseData: CreateCourseDto): Promise<CourseEntity> {
         const course = await this.courseRepository.findOne({ where: { id: id } });
 
         if (!course) {

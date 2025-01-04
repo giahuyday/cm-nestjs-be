@@ -14,5 +14,4 @@ export class MIGRATE00011735197992836 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "student"`);
         await queryRunner.query(`DROP TABLE "course"`);
     }
-
 }
