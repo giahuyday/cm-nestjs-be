@@ -17,10 +17,15 @@ type Query {
   getHello: String!
   getCourseById(id: Int!): CourseEntity!
   getCourses: [CourseEntity!]!
+  getCourseByName(courseDto: CreateCourseDto!): [CourseEntity!]!
   getStudents: [StudentEntity!]!
   getStudentById(studenDto: StudentByClassDto!): StudentEntity!
   getStudentByName(studentDto: StudentByClassDto!): [StudentEntity!]!
   getStudentByClassName(studentDto: StudentByClassDto!): [StudentEntity!]!
+}
+
+input CreateCourseDto {
+  name: String!
 }
 
 input StudentByClassDto {
@@ -31,24 +36,16 @@ input StudentByClassDto {
 }
 
 type Mutation {
-  createCourse(courseDto: CreateCourseInput!): CourseEntity!
-  deleteCourseById(courseDto: DeleteCourseInput!): Boolean!
+  createCourse(courseDto: CreateCourseDto!): CourseEntity!
+  deleteCourseById(courseDto: DeleteCourseDto!): Boolean!
   updateCourseById(id: Float!, courseDto: CreateCourseDto!): CourseEntity!
   createStudent(studentDto: CreateStudentDto!): StudentEntity!
   updateStudent(studentDto: UpdateStudentDto!): StudentEntity!
   deleteStudent(studentDto: DeleteStudentDto!): Boolean!
 }
 
-input CreateCourseInput {
-  name: String!
-}
-
-input DeleteCourseInput {
+input DeleteCourseDto {
   id: Float!
-}
-
-input CreateCourseDto {
-  name: String!
 }
 
 input CreateStudentDto {

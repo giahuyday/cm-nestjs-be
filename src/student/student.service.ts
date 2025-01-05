@@ -49,7 +49,7 @@ export class StudentService {
             where: { id: studentData },
             relations: { classId: true },
         });
-        if (!student) throw new NotFoundException("Student not found");
+        if (!student) throw new NotFoundException('Student not found');
 
         return student;
     }

@@ -35,6 +35,15 @@ export class CourseService {
         throw new NotFoundException();
     }
 
+    async getCourseByName(courseName: string): Promise<CourseEntity[]> {
+        const courses = await this.courseRepository
+            .createQueryBuilder('course')
+            .where('course.name ilike :name', { name: `%${courseName}%` })
+            .getMany();
+
+        return courses;
+    }
+
     async updateCourse(id: number, courseData: CreateCourseDto): Promise<CourseEntity> {
         const course = await this.courseRepository.findOne({ where: { id: id } });
 
