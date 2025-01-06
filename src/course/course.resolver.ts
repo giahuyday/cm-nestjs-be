@@ -1,8 +1,7 @@
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CourseService } from './course.service';
-import { CreateCourseInput, DeleteCourseInput, UpdateCourseInput } from './dto/course.input';
 import { CourseEntity } from 'src/entities/course.entity';
-import { CreateCourseDto } from './dto/course.dto';
+import { CreateCourseDto, DeleteCourseDto } from './dto/course.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Resolver(() => CourseEntity)
@@ -11,7 +10,7 @@ export class CourseResolver {
 
     @Roles('admin', 'principal')
     @Mutation(() => CourseEntity)
-    async createCourse(@Args('courseDto') courseDto: CreateCourseInput): Promise<CourseEntity> {
+    async createCourse(@Args('courseDto') courseDto: CreateCourseDto): Promise<CourseEntity> {
         return await this.classServices.createCourse(courseDto);
     }
 
@@ -28,11 +27,18 @@ export class CourseResolver {
     }
 
     @Roles('admin', 'principal')
+    @Query(() => [CourseEntity])
+    async getCourseByName(@Args('courseDto') courseDto: CreateCourseDto): Promise<CourseEntity[]> {
+        return await this.classServices.getCourseByName(courseDto?.name);
+    }
+
+    @Roles('admin', 'principal')
     @Mutation(() => Boolean)
-    async deleteCourseById(@Args('courseDto') courseDto: DeleteCourseInput): Promise<boolean> {
+    async deleteCourseById(@Args('courseDto') courseDto: DeleteCourseDto): Promise<boolean> {
+        console.log(courseDto);
         return this.classServices.deleteCourse(courseDto);
     }
-    
+
     @Roles('admin', 'principal')
     @Mutation(() => CourseEntity)
     async updateCourseById(

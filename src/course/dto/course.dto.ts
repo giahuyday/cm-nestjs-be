@@ -24,6 +24,7 @@ export class CreateCourseDto {
     name: string;
 }
 
+@InputType()
 export class DeleteCourseDto {
     @Field()
     @IsInt()

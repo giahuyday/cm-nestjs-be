@@ -1,5 +1,4 @@
 import { InputType, Field, ID } from '@nestjs/graphql';
-import { Int } from 'msnodesqlv8';
 
 @InputType()
 export class CreateCourseInput {

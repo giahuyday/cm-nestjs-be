@@ -10,5 +10,4 @@ RUN npm install
 
 EXPOSE 3000
 
-# Start the server using the production build
-CMD [ "npm", "start" ]
+CMD ["sh", "-c", "npm run migration:run && npm start"]
