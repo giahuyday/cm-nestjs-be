@@ -25,11 +25,11 @@ import { AppResolver } from './app.resolver';
     controllers: [AppController],
     providers: [
         AppService,
-        // Reflector,
-        // {
-        //     provide: APP_GUARD,
-        //     useClass: StudentGuard,
-        // },
+        Reflector,
+        {
+            provide: APP_GUARD,
+            useClass: StudentGuard,
+        },
         AppResolver,
     ],
 })
