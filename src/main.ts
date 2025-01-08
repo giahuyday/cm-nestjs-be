@@ -3,19 +3,18 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filter/exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { GraphQLErrorFilter } from './common/filter/graphql.exception.filter';
-import { config } from 'dotenv';
+import { ConfigService } from '@nestjs/config';
 
-config();
+const configService = new ConfigService();
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
-    console.log(process.env.ALLOW_ORIGIN);
     app.enableCors({
-        origin: process.env.ALLOW_ORIGIN, // Allowed origins
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed methods
-        credentials: true, // Allow credentials (e.g., cookies)
-        allowedHeaders: 'Content-Type, Accept, Authorization', // Allowed headers
+        origin: configService.get<string>('ALLOW_ORIGIN').split(','),
+        methods: configService.get<string>('ALLOW_METHOD').split(','),
+        allowedHeaders: configService.get<string>('ALLOW_HEADER').split(','),
     });
+
     app.useGlobalFilters(new HttpExceptionFilter(), new GraphQLErrorFilter());
     app.useGlobalPipes(
         new ValidationPipe({
